@@ -1,8 +1,9 @@
 import { WebSocketServer } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
+import {prismaClient} from "@repo/db/client"
 
-const wss = new WebSocketServer({ port: 8000 });
+const wss = new WebSocketServer({ port: 8080 });
 
 // that is the ugly way to do state mangement
 interface User {
@@ -14,16 +15,20 @@ interface User {
 const users: User[] = [];
 
 function checkUser(token: string): string | null {
-  const decoded = jwt.verify(token, JWT_SECRET);
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
 
-  if (typeof decoded == "string") {
+    if (typeof decoded == "string") {
+      return null;
+    }
+
+    if (!decoded || !decoded.userId) {
+      return null;
+    }
+    return decoded.userId;
+  } catch {
     return null;
   }
-
-  if (!decoded || !decoded.userId) {
-    return null;
-  }
-  return decoded.userId;
 }
 
 wss.on("connection", function (ws, request) {
@@ -50,7 +55,7 @@ wss.on("connection", function (ws, request) {
     ws,
   });
 
-  ws.on("message", function message(data) {
+  ws.on("message",async function message(data) {
     const parsedData = JSON.parse(data as unknown as string);
 
     if (parsedData.type === "join_room") {
@@ -70,6 +75,15 @@ wss.on("connection", function (ws, request) {
     if (parsedData.type==="chat") {
       const roomId =  parsedData.roomId;
       const message =  parsedData.message;
+
+      await prismaClient.chat.create({
+        data:{
+          roomId,
+          message,
+          userId
+        }
+      })
+
       users.forEach(user=>{
         if (user.rooms.includes(roomId)) {
           user.ws.send(JSON.stringify({

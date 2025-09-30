@@ -17,8 +17,10 @@ app.post("/signup", async (req, res) => {
   try {
     const parseData = CreateUserSchema.safeParse(req.body);
     if (!parseData.success) {
+      console.log(parseData)
       return res.status(400).json({
         message: "Incorrect Inputs",
+        
       });
     }
 
@@ -77,7 +79,7 @@ app.post("/signin", async (req, res) => {
         message: "Invalid Password",
       });
     }
-
+console.log(user)
     const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET);
 
     res.json({
@@ -108,6 +110,9 @@ app.post("/room", middleware, async (req, res) => {
         adminId: userId,
       },
     });
+    if(room){
+
+    }
 
     res.status(201).json({
       roomId: room.id,
@@ -121,4 +126,4 @@ app.post("/room", middleware, async (req, res) => {
   }
 });
 
-app.listen(3001);
+app.listen(3000);
