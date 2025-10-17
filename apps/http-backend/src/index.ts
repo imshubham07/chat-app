@@ -17,10 +17,9 @@ app.post("/signup", async (req, res) => {
   try {
     const parseData = CreateUserSchema.safeParse(req.body);
     if (!parseData.success) {
-      console.log(parseData)
+      console.log(parseData);
       return res.status(400).json({
         message: "Incorrect Inputs",
-        
       });
     }
 
@@ -79,7 +78,7 @@ app.post("/signin", async (req, res) => {
         message: "Invalid Password",
       });
     }
-console.log(user)
+    console.log(user);
     const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET);
 
     res.json({
@@ -102,7 +101,7 @@ app.post("/room", middleware, async (req, res) => {
       });
     }
     //@ts-ignore
-    const userId = req.userId; 
+    const userId = req.userId;
 
     const room = await prismaClient.room.create({
       data: {
@@ -110,8 +109,7 @@ app.post("/room", middleware, async (req, res) => {
         adminId: userId,
       },
     });
-    if(room){
-
+    if (room) {
     }
 
     res.status(201).json({
@@ -123,6 +121,26 @@ app.post("/room", middleware, async (req, res) => {
     res.status(500).json({
       message: "Internal Server Error",
     });
+  }
+});
+
+app.get("/chats/:roomId", async (req, res) => {
+  try {
+    const roomId = Number(req.params.roomId);
+    if (isNaN(roomId)) {
+      return res.status(400).json({ message: "Invalid Room ID" });
+    }
+
+    const messages = await prismaClient.chat.findMany({
+      where: { roomId },
+      orderBy: { id: "desc" },
+      take: 50,
+    });
+
+    res.json({ messages });
+  } catch (error) {
+    console.error("Chat fetch error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
