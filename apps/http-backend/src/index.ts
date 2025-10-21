@@ -1,5 +1,6 @@
 import express from "express";
 import jwt from "jsonwebtoken";
+import cors from "cors";
 import { JWT_SECRET } from "@repo/backend-common/config";
 import { middleware } from "./middleware";
 import {
@@ -11,6 +12,7 @@ import { prismaClient, Prisma } from "@repo/db/client";
 import bcrypt from "bcrypt";
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
@@ -144,4 +146,20 @@ app.get("/chats/:roomId", async (req, res) => {
   }
 });
 
-app.listen(3000);
+
+app.get("/room/:slug", async (req, res) => {
+  try {
+    const slug = req.params.slug;
+   
+
+    const room = await prismaClient.room.findFirst({
+      where: { slug }
+    });
+
+    res.json({  room });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+app.listen(3001);

@@ -3,18 +3,39 @@ import jwt from "jsonwebtoken"
 import { JWT_SECRET } from "@repo/backend-common/config";
 
 export function middleware(req:Request, res:Response, next:NextFunction ){
-    const token = req.headers["authorization"]?? ""
+    try {
+        const authHeader = req.headers["authorization"]?? ""
+        
+        if (!authHeader) {
+            return res.status(401).json({
+                message: "Authorization header missing"
+            })
+        }
+        
+        // Extract token from "Bearer <token>" format
+        const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader
 
-    const decoded = jwt.verify(token, JWT_SECRET) 
+        if (!token) {
+            return res.status(401).json({
+                message: "Token missing"
+            })
+        }
 
-    if(decoded){
-        //@ts-ignore 
-        req.userId = decoded.userId
-        next()
+        const decoded = jwt.verify(token, JWT_SECRET) 
 
-    }else{
-        res.status(403).json({
-            message:"Unauthorized"
+        if(decoded){
+            //@ts-ignore 
+            req.userId = decoded.userId
+            next()
+        }else{
+            res.status(403).json({
+                message:"Unauthorized"
+            })
+        }
+    } catch (error) {
+        console.error('JWT verification error:', error);
+        res.status(401).json({
+            message: "Invalid token"
         })
     }
 }

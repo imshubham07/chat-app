@@ -16,7 +16,9 @@ const users = new Map<WebSocket, User>();
 // Verify JWT safely
 function verifyToken(token: string): string | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & { userId?: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & {
+      userId?: string;
+    };
     return decoded.userId ?? null;
   } catch {
     return null;
@@ -61,31 +63,45 @@ wss.on("connection", (ws, request) => {
 
         switch (msg.type) {
           case "join_room": {
-            if (typeof msg.roomId !== "string") return;
-            user.rooms.add(msg.roomId);
-            console.log(`👥 User ${userId} joined room ${msg.roomId}`);
+            const roomId = String(msg.roomId); // Convert to string
+            if (!roomId) return;
+            user.rooms.add(roomId);
+            console.log(`👥 User ${userId} joined room ${roomId}`);
             break;
           }
 
           case "leave_room": {
-            if (typeof msg.roomId !== "string") return;
-            user.rooms.delete(msg.roomId);
-            console.log(`🚪 User ${userId} left room ${msg.roomId}`);
+            const roomId = String(msg.roomId); // Convert to string
+            if (!roomId) return;
+            user.rooms.delete(roomId);
+            console.log(`🚪 User ${userId} left room ${roomId}`);
             break;
           }
 
           case "chat": {
-            const { roomId, message } = msg;
-            if (typeof roomId !== "string" || typeof message !== "string") return;
+            const { roomId: rawRoomId, message } = msg;
+            const roomId = String(rawRoomId); // Convert to string
+
+            if (!message || typeof message !== "string") return;
 
             const numericRoomId = Number(roomId);
+
             if (isNaN(numericRoomId)) return;
+
+            // Check if user joined the room first
+            if (!user.rooms.has(roomId)) {
+              console.log("❌ User not in room");
+              return;
+            }
 
             // validate room
             const room = await prismaClient.room.findUnique({
               where: { id: numericRoomId },
             });
+            console.log("i ham here", room);
+
             if (!room) return;
+            console.log("📨 Chat message received:", msg);
 
             await prismaClient.chat.create({
               data: { roomId: numericRoomId, message, userId },
@@ -108,7 +124,9 @@ wss.on("connection", (ws, request) => {
         console.error("❌ Error handling message:", err);
         // optional: send error to client
         if (ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: "error", message: "Invalid request" }));
+          ws.send(
+            JSON.stringify({ type: "error", message: "Invalid request" })
+          );
         }
       }
     });
