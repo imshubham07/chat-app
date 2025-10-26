@@ -24,12 +24,12 @@ export default async function ChatRoom1({
 }: {
     params: { slug: string }
 }) {
-    const slug = params.slug; // ✅ remove unnecessary await
+    const slug = params.slug;
     const roomId = await getRoomId(slug);
 
     if (!roomId) {
         return <p>Room not found.</p>;
     }
 
-    return <ChatRoom id={roomId} />;
+    return <ChatRoom id={roomId} roomSlug={slug} />;
 }
