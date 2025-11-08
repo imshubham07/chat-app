@@ -31,5 +31,5 @@ export default async function ChatRoom1({
         return <p>Room not found.</p>;
     }
 
-    return <ChatRoom id={roomId} roomSlug={slug} />;
+    return <ChatRoom id={String(roomId)} roomSlug={slug} />;
 }

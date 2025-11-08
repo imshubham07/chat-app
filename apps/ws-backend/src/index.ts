@@ -54,7 +54,7 @@ wss.on("connection", (ws, request) => {
     const user: User = { ws, userId, rooms: new Set() };
     users.set(ws, user);
 
-    console.log(`✅ User ${userId} connected (${users.size} active)`);
+    // console.log(`✅ User ${userId} connected (${users.size} active)`);
 
     // ---- Message Handling ----
     ws.on("message", async (raw) => {
@@ -66,7 +66,7 @@ wss.on("connection", (ws, request) => {
             const roomId = String(msg.roomId); // Convert to string
             if (!roomId) return;
             user.rooms.add(roomId);
-            console.log(`👥 User ${userId} joined room ${roomId}`);
+            // console.log(`👥 User ${userId} joined room ${roomId}`);
             break;
           }
 
@@ -74,7 +74,7 @@ wss.on("connection", (ws, request) => {
             const roomId = String(msg.roomId); // Convert to string
             if (!roomId) return;
             user.rooms.delete(roomId);
-            console.log(`🚪 User ${userId} left room ${roomId}`);
+            // console.log(`🚪 User ${userId} left room ${roomId}`);
             break;
           }
 
@@ -90,7 +90,7 @@ wss.on("connection", (ws, request) => {
 
             // Check if user joined the room first
             if (!user.rooms.has(roomId)) {
-              console.log("❌ User not in room");
+              // console.log("❌ User not in room");
               return;
             }
 
@@ -98,10 +98,10 @@ wss.on("connection", (ws, request) => {
             const room = await prismaClient.room.findUnique({
               where: { id: numericRoomId },
             });
-            console.log("i ham here", room);
+            // console.log("i ham here", room);
 
             if (!room) return;
-            console.log("📨 Chat message received:", msg);
+            // console.log("📨 Chat message received:", msg);
 
             await prismaClient.chat.create({
               data: { roomId: numericRoomId, message, userId },
@@ -133,7 +133,7 @@ wss.on("connection", (ws, request) => {
 
     ws.on("close", () => {
       users.delete(ws);
-      console.log(`❌ User ${userId} disconnected (${users.size} active)`);
+      // console.log(`❌ User ${userId} disconnected (${users.size} active)`);
     });
 
     ws.on("error", (err) => {
