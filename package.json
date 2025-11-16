@@ -1,5 +1,5 @@
 {
-  "name": "Draw-app",
+  "name": "chat_app",
   "private": true,
   "scripts": {
     "build": "turbo run build",

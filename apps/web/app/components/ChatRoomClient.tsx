@@ -24,13 +24,16 @@ export function ChatRoomClient({
 
   // Decode JWT to get current user ID
   useEffect(() => {
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setCurrentUserId(payload.userId);
-      } catch (error) {
-        console.error('Failed to decode token:', error);
-      }
+    if (!token) return;
+    const parts = token.split('.');
+    if (parts.length < 2) return; // malformed token
+    const middle: string = parts[1] || ""; // ensure string for atob
+    if (!middle) return;
+    try {
+      const payload: { userId?: string } = JSON.parse(atob(middle));
+      if (payload.userId) setCurrentUserId(payload.userId);
+    } catch {
+      // silently ignore decode errors
     }
   }, [token]);
 
@@ -143,7 +146,7 @@ className="bg-dark-lighter text-primary border-2 border-primary/30 px-6 py-2 rou
                   <div 
                     className={`rounded-2xl px-5 py-3 max-w-2xl shadow-lg ${
                       isOwnMessage 
-                        ? 'bg-gradient-to-r from-primary to-primary-light text-white' 
+                        ? 'bg-linear-to-r from-primary to-primary-light text-white' 
                         : 'bg-dark-card border border-primary/20 text-slate-100'
                     }`}
                   >
@@ -178,7 +181,7 @@ className="bg-dark-lighter text-primary border-2 border-primary/30 px-6 py-2 rou
               disabled={loading}
             />
             <button
-              className="bg-gradient-to-r from-primary to-primary-light hover:from-primary-light hover:to-secondary text-white px-8 py-4 rounded-xl text-base font-semibold transition-all shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-linear-to-r from-primary to-primary-light hover:from-primary-light hover:to-secondary text-white px-8 py-4 rounded-xl text-base font-semibold transition-all shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleSendMessage}
               disabled={loading || !currentMessage.trim()}
             >
