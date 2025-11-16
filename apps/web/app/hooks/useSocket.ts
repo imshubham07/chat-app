@@ -11,19 +11,15 @@ export function useSocket(token: string | null) {
             return;
         }
 
-        // console.log('Connecting to WebSocket:', `${WS_URL}?token=${token.slice(0, 20)}...`);
-        const ws = new WebSocket(`${WS_URL}?token=${token}`);
+        const encodedToken = encodeURIComponent(token);
+        const ws = new WebSocket(`${WS_URL}?token=${encodedToken}`);
         
         ws.onopen = () => {
-            // console.log('✅ WebSocket connected successfully');
             setLoading(false);
             setSocket(ws);
         };
 
-        ws.onerror = (error) => {
-            console.error('❌ WebSocket error:', error);
-            console.error('WebSocket URL:', WS_URL);
-            console.error('WebSocket readyState:', ws.readyState);
+        ws.onerror = () => {
             setLoading(false);
         };
 
