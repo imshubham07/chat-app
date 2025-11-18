@@ -38,7 +38,7 @@ app.post("/signup", async (req, res) => {
       userId: user.id,
       message: "User created successfully",
     });
-  } catch (error) {
+  } catch (error: unknown) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
