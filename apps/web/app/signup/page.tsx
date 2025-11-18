@@ -21,6 +21,12 @@ export default function SignUp() {
     setLoading(true);
 
     try {
+      // Align with backend: username should be at most 20 characters
+      if (username.trim().length > 20) {
+        setLoading(false);
+        setError('Username must be at most 20 characters');
+        return;
+      }
       const signupResponse = await axios.post(`${BACKEND_URL}/signup`, {
         name,
         username,
@@ -39,8 +45,9 @@ export default function SignUp() {
           router.push('/dashboard');
         }
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Sign up failed. Please try again.');
+    } catch (err) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(msg || 'Sign up failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -49,7 +56,7 @@ export default function SignUp() {
   return (
     <div className="min-h-screen bg-dark flex items-center justify-center px-4 relative overflow-hidden">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-dark via-dark-lighter to-dark opacity-50"></div>
+  <div className="absolute inset-0 bg-linear-to-br from-dark via-dark-lighter to-dark opacity-50"></div>
       <div className="absolute inset-0" style={{
         backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(13, 148, 136, 0.15) 1px, transparent 0)',
         backgroundSize: '40px 40px'
@@ -86,13 +93,14 @@ export default function SignUp() {
             </div>
 
             <div className="space-y-2">
-              <label className="block font-semibold text-slate-300">Email</label>
+              <label className="block font-semibold text-slate-300">Username</label>
               <input
-                type="email"
+                type="text"
                 className="w-full px-4 py-3 bg-dark-lighter border-2 border-primary/20 rounded-lg text-base text-slate-100 transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 placeholder-slate-500"
-                placeholder="Enter your email"
+                placeholder="Choose a username (max 20)"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => setUsername(e.target.value.slice(0, 20))}
+                maxLength={20}
                 required
               />
             </div>
@@ -112,7 +120,7 @@ export default function SignUp() {
 
             <button 
               type="submit" 
-              className="w-full bg-gradient-to-r from-primary to-primary-light hover:from-primary-light hover:to-secondary text-white px-4 py-3 rounded-lg text-base font-semibold transition-all shadow-lg shadow-primary/30 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full bg-linear-to-r from-primary to-primary-light hover:from-primary-light hover:to-secondary text-white px-4 py-3 rounded-lg text-base font-semibold transition-all shadow-lg shadow-primary/30 disabled:opacity-60 disabled:cursor-not-allowed"
               disabled={loading}
             >
               {loading ? 'Creating Account...' : 'Sign Up'}
