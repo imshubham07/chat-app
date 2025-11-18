@@ -1,2 +1,2 @@
-export const BACKEND_URL = "https://chat-app-575m.onrender.com";
-export const WS_URL = "ws://localhost:8080";
+export const BACKEND_URL = "https://http.shubhamdev.tech";
+export const WS_URL = "https://ws.shubhamdev.tech";
