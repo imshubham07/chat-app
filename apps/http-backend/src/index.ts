@@ -8,7 +8,7 @@ import {
   SignInSchema,
   CreateRoomSchema,
 } from "@repo/common/types";
-import { prismaClient, Prisma } from "@repo/db/client";
+import { prismaClient, Prisma } from "@repo/db";
 import bcrypt from "bcrypt";
 
 const app = express();
@@ -38,7 +38,7 @@ app.post("/signup", async (req, res) => {
       userId: user.id,
       message: "User created successfully",
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"

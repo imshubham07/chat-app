@@ -9,7 +9,7 @@ const cors_1 = __importDefault(require("cors"));
 const config_1 = require("@repo/backend-common/config");
 const middleware_1 = require("./middleware");
 const types_1 = require("@repo/common/types");
-const client_1 = require("@repo/db/client");
+const db_1 = require("@repo/db");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
@@ -24,7 +24,7 @@ app.post("/signup", async (req, res) => {
             });
         }
         const hashedPassword = await bcrypt_1.default.hash(parseData.data.password, 10);
-        const user = await client_1.prismaClient.user.create({
+        const user = await db_1.prismaClient.user.create({
             data: {
                 email: parseData.data.username,
                 password: hashedPassword,
@@ -37,7 +37,7 @@ app.post("/signup", async (req, res) => {
         });
     }
     catch (error) {
-        if (error instanceof client_1.Prisma.PrismaClientKnownRequestError &&
+        if (error instanceof db_1.Prisma.PrismaClientKnownRequestError &&
             error.code === "P2002") {
             return res.status(409).json({
                 message: "User already exists with this username",
@@ -58,7 +58,7 @@ app.post("/signin", async (req, res) => {
             });
         }
         const { username, password } = parseData.data;
-        const user = await client_1.prismaClient.user.findUnique({
+        const user = await db_1.prismaClient.user.findUnique({
             where: { email: username },
         });
         if (!user) {
@@ -95,7 +95,7 @@ app.post("/room", middleware_1.middleware, async (req, res) => {
         }
         //@ts-ignore
         const userId = req.userId;
-        const room = await client_1.prismaClient.room.create({
+        const room = await db_1.prismaClient.room.create({
             data: {
                 slug: parseData.data.name.toLowerCase().replace(/\s+/g, "-"), // safer slug
                 adminId: userId,
@@ -121,7 +121,7 @@ app.get("/chats/:roomId", async (req, res) => {
         if (isNaN(roomId)) {
             return res.status(400).json({ message: "Invalid Room ID" });
         }
-        const messages = await client_1.prismaClient.chat.findMany({
+        const messages = await db_1.prismaClient.chat.findMany({
             where: { roomId },
             orderBy: { id: "desc" },
             take: 50,
@@ -135,7 +135,7 @@ app.get("/chats/:roomId", async (req, res) => {
 });
 app.get("/rooms", middleware_1.middleware, async (req, res) => {
     try {
-        const rooms = await client_1.prismaClient.room.findMany({
+        const rooms = await db_1.prismaClient.room.findMany({
             orderBy: { createdAt: "desc" },
             include: {
                 admin: {
@@ -156,7 +156,7 @@ app.get("/rooms", middleware_1.middleware, async (req, res) => {
 app.get("/room/:slug", async (req, res) => {
     try {
         const slug = req.params.slug;
-        const room = await client_1.prismaClient.room.findFirst({
+        const room = await db_1.prismaClient.room.findFirst({
             where: { slug }
         });
         res.json({ room });

@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const ws_1 = require("ws");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("@repo/backend-common/config");
-const client_1 = require("@repo/db/client");
+const db_1 = require("@repo/db");
 const wss = new ws_1.WebSocketServer({ port: 8080 });
 const users = new Map();
 // Verify JWT safely
@@ -89,14 +89,14 @@ wss.on("connection", (ws, request) => {
                             return;
                         }
                         // validate room
-                        const room = await client_1.prismaClient.room.findUnique({
+                        const room = await db_1.prismaClient.room.findUnique({
                             where: { id: numericRoomId },
                         });
                         // console.log("i ham here", room);
                         if (!room)
                             return;
                         // console.log("📨 Chat message received:", msg);
-                        await client_1.prismaClient.chat.create({
+                        await db_1.prismaClient.chat.create({
                             data: { roomId: numericRoomId, message, userId },
                         });
                         broadcast(roomId, {

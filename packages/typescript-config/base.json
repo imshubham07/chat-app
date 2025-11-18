@@ -14,6 +14,15 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "ES2022"
+    "target": "ES2022",
+    "baseUrl": ".",
+    "paths": {
+      "@repo/db": ["../../packages/db/src"],
+      "@repo/db/*": ["../../packages/db/src/*"],
+      "@repo/backend-common": ["../../packages/backend-common/src"],
+      "@repo/backend-common/*": ["../../packages/backend-common/src/*"],
+      "@repo/common": ["../../packages/common/src"],
+      "@repo/common/*": ["../../packages/common/src/*"]
+    }
   }
 }

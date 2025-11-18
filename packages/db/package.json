@@ -5,12 +5,17 @@
   "main": "./dist/db.js",
   "types": "./dist/db.d.ts",
   "exports": {
+    ".": {
+      "types": "./dist/db.d.ts",
+      "default": "./dist/db.js"
+    },
     "./client": {
       "types": "./dist/db.d.ts",
       "default": "./dist/db.js"
     }
   },
   "scripts": {
+    "build": "tsc -b",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
